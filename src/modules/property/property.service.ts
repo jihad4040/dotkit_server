@@ -182,7 +182,6 @@ export class PropertyService {
         const totalScore = breakdown.reduce((sum, i) => sum + i.score, 0);
 
         return {
-            data: {
                 KeyMetrics: {
                     allInCost,
                     initialCashInvested,
@@ -199,7 +198,6 @@ export class PropertyService {
                     mortgage: { monthlyMortgage: Number(monthlyMortgage.toFixed(2)) }
                 },
                 dealScoreboard: { totalScore, rating: totalScore >= 40 ? "GOOD DEAL" : totalScore >= 25 ? "AVERAGE DEAL" : "BAD DEAL", breakdown }
-            }
         };
     }
 
@@ -221,8 +219,6 @@ export class PropertyService {
         const dscrScore = dscr >= 1.25 ? { score: 10, status: "GOOD" } : dscr >= 1.1 ? { score: 5, status: "AVERAGE" } : { score: 0, status: "BAD" };
 
         return {
-            section: "Section 8 - DSCR Analysis",
-            data: {
                 KeyMetrics: {
                     DSCR: Number(dscr.toFixed(2)),
                     netOperatingIncome: Number(noi.toFixed(0)),
@@ -233,7 +229,6 @@ export class PropertyService {
                     rating: dscrScore.status,
                     breakdown: [{ name: "DSCR", value: Number(dscr.toFixed(2)), ...dscrScore }]
                 }
-            }
         };
     }
 
