@@ -1,14 +1,15 @@
 import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { PropertyService } from './property.service';
 import { CreatePropertyDto } from './dto/create.property.dto';
-import { PropertyCalculationResponseDto } from './dto/save.property.data.to.database';
 import { GetCurrentUser } from 'src/common/decorator/get-current-user.decorator';
 import { ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { SaveBrrrPropertyDataDto } from './dto/save.brrrr.property.data.dto';
+import { SaveSection8PropertyDataDto } from './dto/save.section8.property.dto';
 
 @Controller('property')
 export class PropertyController {
-  constructor(private readonly propertyService: PropertyService) { }
+  constructor(private readonly propertyService: PropertyService) {}
 
   @Post('calculate-brrrr')
   async analyze(@Body() dto: CreatePropertyDto) {
@@ -26,18 +27,29 @@ export class PropertyController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Save property calculation data to the database for the authenticated user' })
-  @Post('save')
-  async saveDataToDatabase(@GetCurrentUser('userId') userId: string, @Body() dto: PropertyCalculationResponseDto) {
-    return this.propertyService.saveDataToDatabase(userId, dto);
-  };
-
+  @ApiOperation({
+    summary:
+      'Save property calculation data to the database for the authenticated user',
+  })
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Get all property calculations for the authenticated user with pagination' })
-  @ApiQuery({ name: 'page', required: false, example: 1, description: 'Page number for pagination' })
-  @ApiQuery({ name: 'limit', required: false, example: 10, description: 'Number of items per page for pagination' })
+  @ApiOperation({
+    summary:
+      'Get all property calculations for the authenticated user with pagination',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    example: 1,
+    description: 'Page number for pagination',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    example: 10,
+    description: 'Number of items per page for pagination',
+  })
   @Get('user-calculations')
   async getAllCalculationsForUser(
     @GetCurrentUser('userId') userId: string,
@@ -47,7 +59,6 @@ export class PropertyController {
     return this.propertyService.getAllCalculationsForUser(userId, page, limit);
   }
 
-
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get a specific property calculation by its ID' })
@@ -56,13 +67,45 @@ export class PropertyController {
     return this.propertyService.getCalculationById(propertyId);
   }
 
-
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Delete a specific property calculation by its ID' })
   @Delete('delete/:propertyId')
-  deleteCalculationById(@GetCurrentUser('userId') userId: string, @Param('propertyId') propertyId: string) {
+  deleteCalculationById(
+    @GetCurrentUser('userId') userId: string,
+    @Param('propertyId') propertyId: string,
+  ) {
     return this.propertyService.deleteCalculationById(propertyId, userId);
+  }
+
+  @Post(`save-brrr-property`)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  async saveBrrrProperty(
+    @GetCurrentUser('userId') userId: string,
+    @Body() dto: SaveBrrrPropertyDataDto,
+  ) {
+    return this.propertyService.saveBrrrProperty(userId, dto);
+  }
+
+  @Post(`save-turnkey-property`)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  async saveTurnkeyProperty(
+    @GetCurrentUser('userId') userId: string,
+    @Body() dto: SaveBrrrPropertyDataDto,
+  ) {
+    return this.propertyService.saveTurnkeyProperty(userId, dto);
+  }
+
+  @Post(`save-section8-property`)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  async saveSection8Property(
+    @GetCurrentUser('userId') userId: string,
+    @Body() dto: SaveSection8PropertyDataDto,
+  ) {
+    return this.propertyService.saveSection8Property(userId, dto);
   }
 }
 
