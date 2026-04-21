@@ -292,10 +292,10 @@ export class PropertyService {
 
     const dscrScore =
       dscr >= 1.25
-        ? { score: 10, status: 'GOOD DEAL' }
+        ? { score: 10, status: 'GOOD' }
         : dscr >= 1.1
-          ? { score: 5, status: 'AVERAGE DEAL' }
-          : { score: 0, status: 'BAD DEAL' };
+          ? { score: 5, status: 'AVERAGE' }
+          : { score: 0, status: 'BAD' };
 
     return {
       KeyMetrics: {
@@ -305,7 +305,7 @@ export class PropertyService {
       },
       dealScoreboard: {
         totalScore: dscrScore.score,
-        rating: dscrScore.status,
+        rating: dscrScore.status ? dscrScore.status == 'GOOD' ? 'GOOD DEAL' : dscrScore.status == 'AVERAGE' ? 'AVERAGE DEAL' : 'BAD DEAL' : 'BAD DEAL',
         breakdown: [
           { name: 'DSCR', value: Number(dscr.toFixed(2)), ...dscrScore },
         ],
