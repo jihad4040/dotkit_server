@@ -61,7 +61,7 @@ export class SaveSection8PropertyDataDto {
       },
       dealScoreboard: {
         totalScore: 0,
-        rating: 'BAD',
+        rating: 'GOOD DEAL',
         breakdown: [
           {
             name: 'DSCR',
