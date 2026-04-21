@@ -6,7 +6,7 @@ import { SaveSection8PropertyDataDto } from './dto/save.section8.property.dto';
 
 @Injectable()
 export class PropertyService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async calculateBrrrr(data: CreatePropertyDto) {
     // 1. Unified Cash Flow Logic (Used by all sub-functions)
@@ -82,7 +82,7 @@ export class PropertyService {
           dto.annualUtilities +
           dto.annualOtherExpense +
           ((dto.maintenanceRate + dto.managementRate + dto.capexRate) / 100) *
-            effectiveIncome);
+          effectiveIncome);
 
       return {
         allInCost,
@@ -143,34 +143,46 @@ export class PropertyService {
     };
 
     return {
-      KeyMetrics: {
-        allInCost: metrics.allInCost,
-        initialCashInvested: metrics.initialCashInvested,
-        monthlyCashFlow: metrics.flow.monthly,
-        postRefiCoC: Number(metrics.postRefiCoC.toFixed(2)),
-        cashOutAmount: Number(metrics.cashOut.toFixed(2)),
-        cashLeftInDeal: Number(metrics.cashLeftInDeal.toFixed(2)),
-        cashOutPercentage: Number(metrics.cashOutPercentage.toFixed(2)),
-        capRate: Number(metrics.capRate.toFixed(2)),
-        DSCR: Number(metrics.dscr.toFixed(2)),
-        OnePercentRuleAllIn: metrics.onePercentRule,
-        netOperatingIncome: Number(metrics.noi.toFixed(0)),
-      },
-      incomeExpance: {
-        income: {
-          monthlyRent: data.monthlyRent,
-          annualRent: data.monthlyRent * 12,
-          effectiveIncome: data.monthlyRent * 12 * (1 - data.vacancyRate / 100),
+      strategy: 'BRRRR',
+      stateAddress: data.stateAddress,
+      purchasePrice: data.purchasePrice,
+      downPayment: data.downPayment,
+      annualInsurance: data.annualInsurance,
+      annualPropertyTax: data.annualPropertyTax,
+      vacancyRate: data.vacancyRate,
+      maintenanceRate: data.maintenanceRate,
+      managementRate: data.managementRate,
+      capexRate: data.capexRate,
+      responseData: {
+        KeyMetrics: {
+          allInCost: metrics.allInCost,
+          initialCashInvested: metrics.initialCashInvested,
+          monthlyCashFlow: metrics.flow.monthly,
+          postRefiCoC: Number(metrics.postRefiCoC.toFixed(2)),
+          cashOutAmount: Number(metrics.cashOut.toFixed(2)),
+          cashLeftInDeal: Number(metrics.cashLeftInDeal.toFixed(2)),
+          cashOutPercentage: Number(metrics.cashOutPercentage.toFixed(2)),
+          capRate: Number(metrics.capRate.toFixed(2)),
+          DSCR: Number(metrics.dscr.toFixed(2)),
+          OnePercentRuleAllIn: metrics.onePercentRule,
+          netOperatingIncome: Number(metrics.noi.toFixed(0)),
         },
-        expenses: { totalExpenses: metrics.flow.totalAnnualExpenses },
-        noi: metrics.noi,
-        mortgage: {
-          monthlyMortgage: Number(metrics.refiMortgage.toFixed(2)),
-          annualMortgage: Number((metrics.refiMortgage * 12).toFixed(2)),
+        incomeExpance: {
+          income: {
+            monthlyRent: data.monthlyRent,
+            annualRent: data.monthlyRent * 12,
+            effectiveIncome: data.monthlyRent * 12 * (1 - data.vacancyRate / 100),
+          },
+          expenses: { totalExpenses: metrics.flow.totalAnnualExpenses },
+          noi: metrics.noi,
+          mortgage: {
+            monthlyMortgage: Number(metrics.refiMortgage.toFixed(2)),
+            annualMortgage: Number((metrics.refiMortgage * 12).toFixed(2)),
+          },
+          netCashFlow: metrics.flow,
         },
-        netCashFlow: metrics.flow,
-      },
-      dealScoreboard: getDealScoreboard(metrics),
+        dealScoreboard: getDealScoreboard(metrics),
+      }
     };
   }
 
@@ -194,7 +206,7 @@ export class PropertyService {
       dto.annualUtilities +
       dto.annualOtherExpense +
       ((dto.maintenanceRate + dto.managementRate + dto.capexRate) / 100) *
-        effectiveIncome;
+      effectiveIncome;
 
     const noi = effectiveIncome - totalExpenses;
     const monthlyCashFlow =
@@ -236,34 +248,46 @@ export class PropertyService {
     const totalScore = breakdown.reduce((sum, i) => sum + i.score, 0);
 
     return {
-      KeyMetrics: {
-        allInCost,
-        initialCashInvested,
-        monthlyCashFlow: Number(monthlyCashFlow.toFixed(2)),
-        CashOnCashReturn: Number(coc.toFixed(2)),
-        capRate: Number(capRate.toFixed(2)),
-        DSCR: Number(dscr.toFixed(2)),
-        OnePercentRule: onePercentRule,
-        netOperatingIncome: Number((noi / 12).toFixed(0)),
-      },
-      incomeExpance: {
-        noi: Number(noi.toFixed(0)),
-        netCashFlow: {
-          monthly: Number(monthlyCashFlow.toFixed(2)),
-          annual: Number(annualCashFlow.toFixed(2)),
+      strategy: 'TURNKEY',
+      stateAddress: dto.stateAddress,
+      purchasePrice: dto.purchasePrice,
+      downPayment: dto.downPayment,
+      annualInsurance: dto.annualInsurance,
+      annualPropertyTax: dto.annualPropertyTax,
+      vacancyRate: dto.vacancyRate,
+      maintenanceRate: dto.maintenanceRate,
+      managementRate: dto.managementRate,
+      capexRate: dto.capexRate,
+      responseData: {
+        KeyMetrics: {
+          allInCost,
+          initialCashInvested,
+          monthlyCashFlow: Number(monthlyCashFlow.toFixed(2)),
+          CashOnCashReturn: Number(coc.toFixed(2)),
+          capRate: Number(capRate.toFixed(2)),
+          DSCR: Number(dscr.toFixed(2)),
+          OnePercentRule: onePercentRule,
+          netOperatingIncome: Number((noi / 12).toFixed(0)),
         },
-        mortgage: { monthlyMortgage: Number(monthlyMortgage.toFixed(2)) },
-      },
-      dealScoreboard: {
-        totalScore,
-        rating:
-          totalScore >= 40
-            ? 'GOOD DEAL'
-            : totalScore >= 25
-              ? 'AVERAGE DEAL'
-              : 'BAD DEAL',
-        breakdown,
-      },
+        incomeExpance: {
+          noi: Number(noi.toFixed(0)),
+          netCashFlow: {
+            monthly: Number(monthlyCashFlow.toFixed(2)),
+            annual: Number(annualCashFlow.toFixed(2)),
+          },
+          mortgage: { monthlyMortgage: Number(monthlyMortgage.toFixed(2)) },
+        },
+        dealScoreboard: {
+          totalScore,
+          rating:
+            totalScore >= 40
+              ? 'GOOD DEAL'
+              : totalScore >= 25
+                ? 'AVERAGE DEAL'
+                : 'BAD DEAL',
+          breakdown,
+        }
+      }
     };
   }
 
@@ -283,7 +307,7 @@ export class PropertyService {
       dto.annualUtilities +
       dto.annualOtherExpense +
       ((dto.maintenanceRate + dto.managementRate + dto.capexRate) / 100) *
-        effectiveIncome;
+      effectiveIncome;
 
     const noi = effectiveIncome - totalExpenses;
     const dscr = monthlyMortgage * 12 > 0 ? noi / (monthlyMortgage * 12) : 0;
@@ -298,18 +322,30 @@ export class PropertyService {
           : { score: 0, status: 'BAD' };
 
     return {
-      KeyMetrics: {
-        DSCR: Number(dscr.toFixed(2)),
-        netOperatingIncome: Number(noi.toFixed(0)),
-        monthlyCashFlow: Number(monthlyCashFlow.toFixed(2)),
-      },
-      dealScoreboard: {
-        totalScore: dscrScore.score,
-        rating: dscrScore.status ? dscrScore.status == 'GOOD' ? 'GOOD DEAL' : dscrScore.status == 'AVERAGE' ? 'AVERAGE DEAL' : 'BAD DEAL' : 'BAD DEAL',
-        breakdown: [
-          { name: 'DSCR', value: Number(dscr.toFixed(2)), ...dscrScore },
-        ],
-      },
+      strategy: 'SECTION_8',
+      stateAddress: dto.stateAddress,
+      purchasePrice: dto.purchasePrice,
+      downPayment: dto.downPayment,
+      annualInsurance: dto.annualInsurance,
+      annualPropertyTax: dto.annualPropertyTax,
+      vacancyRate: dto.vacancyRate,
+      maintenanceRate: dto.maintenanceRate,
+      managementRate: dto.managementRate,
+      capexRate: dto.capexRate,
+      responseData: {
+        KeyMetrics: {
+          DSCR: Number(dscr.toFixed(2)),
+          netOperatingIncome: Number(noi.toFixed(0)),
+          monthlyCashFlow: Number(monthlyCashFlow.toFixed(2)),
+        },
+        dealScoreboard: {
+          totalScore: dscrScore.score,
+          rating: dscrScore.status ? dscrScore.status == 'GOOD' ? 'GOOD DEAL' : dscrScore.status == 'AVERAGE' ? 'AVERAGE DEAL' : 'BAD DEAL' : 'BAD DEAL',
+          breakdown: [
+            { name: 'DSCR', value: Number(dscr.toFixed(2)), ...dscrScore },
+          ],
+        }
+      }
     };
   }
 
