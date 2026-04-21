@@ -292,10 +292,10 @@ export class PropertyService {
 
     const dscrScore =
       dscr >= 1.25
-        ? { score: 10, status: 'GOOD' }
+        ? { score: 10, status: 'GOOD DEAL' }
         : dscr >= 1.1
-          ? { score: 5, status: 'AVERAGE' }
-          : { score: 0, status: 'BAD' };
+          ? { score: 5, status: 'AVERAGE DEAL' }
+          : { score: 0, status: 'BAD DEAL' };
 
     return {
       KeyMetrics: {
