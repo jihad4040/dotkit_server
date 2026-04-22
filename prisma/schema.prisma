@@ -41,6 +41,7 @@ model User {
 // mortgage 
 
 model PropertyCalculation {
+  name         String?
   propertyId   String       @id @default(uuid())
   strategy     StrategyType
   stateAddress String
