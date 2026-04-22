@@ -6,7 +6,7 @@ import { SaveSection8PropertyDataDto } from './dto/save.section8.property.dto';
 
 @Injectable()
 export class PropertyService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async calculateBrrrr(data: CreatePropertyDto) {
     // 1. Unified Cash Flow Logic (Used by all sub-functions)
@@ -82,7 +82,7 @@ export class PropertyService {
           dto.annualUtilities +
           dto.annualOtherExpense +
           ((dto.maintenanceRate + dto.managementRate + dto.capexRate) / 100) *
-          effectiveIncome);
+            effectiveIncome);
 
       return {
         allInCost,
@@ -171,7 +171,8 @@ export class PropertyService {
           income: {
             monthlyRent: data.monthlyRent,
             annualRent: data.monthlyRent * 12,
-            effectiveIncome: data.monthlyRent * 12 * (1 - data.vacancyRate / 100),
+            effectiveIncome:
+              data.monthlyRent * 12 * (1 - data.vacancyRate / 100),
           },
           expenses: { totalExpenses: metrics.flow.totalAnnualExpenses },
           noi: metrics.noi,
@@ -182,7 +183,7 @@ export class PropertyService {
           netCashFlow: metrics.flow,
         },
         dealScoreboard: getDealScoreboard(metrics),
-      }
+      },
     };
   }
 
@@ -206,7 +207,7 @@ export class PropertyService {
       dto.annualUtilities +
       dto.annualOtherExpense +
       ((dto.maintenanceRate + dto.managementRate + dto.capexRate) / 100) *
-      effectiveIncome;
+        effectiveIncome;
 
     const noi = effectiveIncome - totalExpenses;
     const monthlyCashFlow =
@@ -286,8 +287,8 @@ export class PropertyService {
                 ? 'AVERAGE DEAL'
                 : 'BAD DEAL',
           breakdown,
-        }
-      }
+        },
+      },
     };
   }
 
@@ -307,7 +308,7 @@ export class PropertyService {
       dto.annualUtilities +
       dto.annualOtherExpense +
       ((dto.maintenanceRate + dto.managementRate + dto.capexRate) / 100) *
-      effectiveIncome;
+        effectiveIncome;
 
     const noi = effectiveIncome - totalExpenses;
     const dscr = monthlyMortgage * 12 > 0 ? noi / (monthlyMortgage * 12) : 0;
@@ -340,12 +341,18 @@ export class PropertyService {
         },
         dealScoreboard: {
           totalScore: dscrScore.score,
-          rating: dscrScore.status ? dscrScore.status == 'GOOD' ? 'GOOD DEAL' : dscrScore.status == 'AVERAGE' ? 'AVERAGE DEAL' : 'BAD DEAL' : 'BAD DEAL',
+          rating: dscrScore.status
+            ? dscrScore.status == 'GOOD'
+              ? 'GOOD DEAL'
+              : dscrScore.status == 'AVERAGE'
+                ? 'AVERAGE DEAL'
+                : 'BAD DEAL'
+            : 'BAD DEAL',
           breakdown: [
             { name: 'DSCR', value: Number(dscr.toFixed(2)), ...dscrScore },
           ],
-        }
-      }
+        },
+      },
     };
   }
 
@@ -354,13 +361,42 @@ export class PropertyService {
     page: number = 1,
     limit: number = 10,
   ) {
-    const records = await this.prisma.propertyCalculation.findMany({
-      where: { userId },
-      include: { breakdown: true },
-      skip: (page - 1) * limit,
-      take: limit,
+    // ensure valid values
+    const currentPage = Number(page) || 1;
+    const perPage = Number(limit) || 10;
+
+    const skip = (currentPage - 1) * perPage;
+
+    // total count (VERY IMPORTANT)
+    const total = await this.prisma.propertyCalculation.count({
+      where: { userId: userId },
     });
-    return records;
+
+    // fetch paginated data
+    const records = await this.prisma.propertyCalculation.findMany({
+      where: { userId: userId },
+      include: { breakdown: true },
+      skip,
+      take: perPage,
+      orderBy: {
+        createdAt: 'desc', // optional but recommended
+      },
+    });
+
+    // total pages calculation
+    const totalPages = Math.ceil(total / perPage);
+
+    return {
+      data: records,
+      meta: {
+        total,
+        page: currentPage,
+        limit: perPage,
+        totalPages,
+        hasNextPage: currentPage < totalPages,
+        hasPrevPage: currentPage > 1,
+      },
+    };
   }
 
   async getCalculationById(propertyId: string) {
@@ -407,6 +443,7 @@ export class PropertyService {
     const scoreBoardStatus = dealScoreboard?.rating;
 
     const data: any = {
+      name: dto.name,
       userId,
       strategy,
       stateAddress,
@@ -472,7 +509,7 @@ export class PropertyService {
     }
 
     return {
-      message: 'Property saved successfully'
+      message: 'Property saved successfully',
     };
   }
 
@@ -498,6 +535,7 @@ export class PropertyService {
 
     // ✅ 1. Prepare flat data
     const data: any = {
+      name: dto.name,
       userId,
       strategy,
       stateAddress,
@@ -566,7 +604,7 @@ export class PropertyService {
 
     // ✅ 4. Return
     return {
-      message: 'Turnkey Property saved successfully'
+      message: 'Turnkey Property saved successfully',
     };
   }
 
@@ -585,12 +623,12 @@ export class PropertyService {
       responseData,
     } = dto;
 
-
     const KeyMetrics = responseData?.KeyMetrics;
     const dealScoreboard = responseData?.dealScoreboard;
 
     // ✅ 1. Prepare flat data
     const data: any = {
+      name: dto.name,
       userId,
       strategy,
       stateAddress,
@@ -637,7 +675,7 @@ export class PropertyService {
 
     // ✅ 4. Return response
     return {
-      message: 'Section 8 Property saved successfully'
+      message: 'Section 8 Property saved successfully',
     };
   }
 }

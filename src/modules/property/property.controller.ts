@@ -1,4 +1,14 @@
-import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { PropertyService } from './property.service';
 import { CreatePropertyDto } from './dto/create.property.dto';
 import { GetCurrentUser } from 'src/common/decorator/get-current-user.decorator';
@@ -26,13 +36,7 @@ export class PropertyController {
   }
 
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({
-    summary:
-      'Save property calculation data to the database for the authenticated user',
-  })
-
-  @ApiBearerAuth()
+  @Get('user-calculations')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({
     summary:
@@ -42,19 +46,18 @@ export class PropertyController {
     name: 'page',
     required: false,
     example: 1,
-    description: 'Page number for pagination',
+    description: 'Page number (default: 1)',
   })
   @ApiQuery({
     name: 'limit',
     required: false,
     example: 10,
-    description: 'Number of items per page for pagination',
+    description: 'Number of items per page (default: 10)',
   })
-  @Get('user-calculations')
   async getAllCalculationsForUser(
     @GetCurrentUser('userId') userId: string,
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 10,
+    @Query('page', ParseIntPipe) page: number = 1,
+    @Query('limit', ParseIntPipe) limit: number = 10,
   ) {
     return this.propertyService.getAllCalculationsForUser(userId, page, limit);
   }
@@ -108,4 +111,3 @@ export class PropertyController {
     return this.propertyService.saveSection8Property(userId, dto);
   }
 }
-

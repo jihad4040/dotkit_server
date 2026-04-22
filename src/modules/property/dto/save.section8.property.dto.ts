@@ -1,12 +1,23 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { StrategyType } from "@prisma/client";
-import { IsEnum, IsNumber, IsObject, IsOptional, IsString } from "class-validator";
-
+import { ApiProperty } from '@nestjs/swagger';
+import { StrategyType } from '@prisma/client';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsObject,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class SaveSection8PropertyDataDto {
   @ApiProperty({ enum: StrategyType, example: `BRRRR or TURNKEY or SECTION_8` })
   @IsEnum(StrategyType)
   strategy!: StrategyType;
+
+  @ApiProperty({ example: 'Property Name' })
+  @IsNotEmpty()
+  @IsString()
+  name!: string;
 
   @ApiProperty({ example: '123 Main St, Los Angeles, CA' })
   @IsString()
