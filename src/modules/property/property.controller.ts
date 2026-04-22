@@ -16,18 +16,20 @@ import { ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { SaveBrrrPropertyDataDto } from './dto/save.brrrr.property.data.dto';
 import { SaveSection8PropertyDataDto } from './dto/save.section8.property.dto';
+import { CalculateBrrrPropertyDto } from './dto/calculate.brrrr.property.dto';
+import { CalculateTurnkeyPropertyDto } from './dto/calculate.turnkey.property.dto';
 
 @Controller('property')
 export class PropertyController {
   constructor(private readonly propertyService: PropertyService) {}
 
   @Post('calculate-brrrr')
-  async analyze(@Body() dto: CreatePropertyDto) {
+  async analyze(@Body() dto: CalculateBrrrPropertyDto) {
     return this.propertyService.calculateBrrrr(dto);
   }
 
   @Post(`calculate-turnkey`)
-  async calculateTurnkeyFull(@Body() dto: CreatePropertyDto) {
+  async calculateTurnkeyFull(@Body() dto: CalculateTurnkeyPropertyDto) {
     return this.propertyService.generateTurnkeyReport(dto);
   }
   @Post(`calculate-Section8_DSCR`)
