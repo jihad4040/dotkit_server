@@ -50,11 +50,17 @@ model PropertyCalculation {
   // --- KEY METRICS ---
   allInCost           Decimal? @db.Decimal(12, 2)
   initialCashInvested Decimal? @db.Decimal(12, 2)
-  monthlyCashFlow     Decimal? @db.Decimal(12, 2)
+  monthlyNetCashFlow  Decimal? @db.Decimal(12, 2)
+  postRefiCoC         Decimal? @db.Decimal(12, 2)
+  cashOutAmount       Decimal  @db.Decimal(12, 2)
+  cashLeftInDeal      Decimal  @db.Decimal(12, 2)
+  equityCaptured      Decimal  @db.Decimal(12, 2)
   cashOnCashReturn    Float?
+  stabilityFactor     Float?
   capRate             Float?
   dscr                Float?
   onePercentRule      Boolean?
+  hudCap              Decimal  @db.Decimal(10, 2)
   netOperatingIncome  Decimal? @db.Decimal(12, 2)
 
   // --- INCOME / RENT ---
@@ -68,6 +74,7 @@ model PropertyCalculation {
 
   // --- LOAN / MORTGAGE ---
   monthlyMortgage Decimal? @db.Decimal(12, 2)
+  annualMortgage  Decimal? @db.Decimal(12, 2)
   mortgage        Decimal? @db.Decimal(12, 2)
 
   // --- PROPERTY DETAILS ---
@@ -89,6 +96,12 @@ model PropertyCalculation {
   maintenanceRate Float?
   managementRate  Float?
   capexRate       Float?
+
+  // FINANCE
+  purchaseLoanAmount  Decimal @db.Decimal(12, 2)
+  refinanceLoanAmount Decimal @db.Decimal(12, 2)
+  loanPointsCost      Decimal @db.Decimal(12, 2)
+  lenderFees          Decimal @db.Decimal(12, 2)
 
   // --- RELATIONS ---
   user      User             @relation(fields: [userId], references: [userId])
