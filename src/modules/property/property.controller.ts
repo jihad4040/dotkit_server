@@ -21,7 +21,7 @@ import { CalculateTurnkeyPropertyDto } from './dto/calculate.turnkey.property.dt
 import { CreateBrrrrDto } from './dto/create.save.brrr.property.dto';
 import { CreateTurnkeyDto } from './dto/create.save.turnkey.dto';
 import { CreateSaveSection8Dto } from './dto/create.save.section.8.dto';
-import { faltuDto } from './dto/faltu.dto';
+import { Section8RequestDto } from './dto/section.e.request.dto';
 
 @Controller('property')
 export class PropertyController {
@@ -110,7 +110,7 @@ export class PropertyController {
   }
 
   @Post(`save-section8-property`)
-  async saveSection8Property(@Body() dto: faltuDto) {
+  async saveSection8Property(@Body() dto: Section8RequestDto) {
     // return this.propertyService.saveSection8Property(userId, dto);
     return dto;
   }

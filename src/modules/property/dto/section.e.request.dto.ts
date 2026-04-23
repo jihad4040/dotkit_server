@@ -1,9 +1,36 @@
 import { Type } from 'class-transformer';
-import { IsString, IsNumber, IsArray, ValidateNested } from 'class-validator';
+import { ValidateNested, IsString, IsNumber, IsArray } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
+// ---------------- Key Metrics ----------------
+class CbdType {
+  @ApiProperty({ example: 0.76 })
+  @IsNumber()
+  DSCR!: number;
+
+  @ApiProperty({ example: 11510 })
+  @IsNumber()
+  netOperatingIncome!: number;
+
+  @ApiProperty({ example: -331.4 })
+  @IsNumber()
+  monthlyCashFlow!: number;
+
+  @ApiProperty({ example: 2000 })
+  @IsNumber()
+  section8Rent!: number;
+
+  @ApiProperty({ example: 2100 })
+  @IsNumber()
+  hudCap!: number;
+
+  @ApiProperty({ example: 0.98 })
+  @IsNumber()
+  stabilityFactor!: number;
+}
+
 // ---------------- Breakdown ----------------
-class BreakdownDto {
+class KdiType {
   @ApiProperty({ example: 'DSCR' })
   @IsString()
   name!: string;
@@ -31,46 +58,19 @@ class DealScoreboardDto {
   @IsString()
   rating!: string;
 
-  @ApiProperty({ type: [BreakdownDto] })
+  @ApiProperty({ type: [KdiType] })
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => BreakdownDto)
-  breakdown!: BreakdownDto[];
-}
-
-// ---------------- Key Metrics ----------------
-class KeyMetricsDto {
-  @ApiProperty({ example: 0.76 })
-  @IsNumber()
-  DSCR!: number;
-
-  @ApiProperty({ example: 11510 })
-  @IsNumber()
-  netOperatingIncome!: number;
-
-  @ApiProperty({ example: -331.4 })
-  @IsNumber()
-  monthlyCashFlow!: number;
-
-  @ApiProperty({ example: 2000 })
-  @IsNumber()
-  section8Rent!: number;
-
-  @ApiProperty({ example: 2100 })
-  @IsNumber()
-  hudCap!: number;
-
-  @ApiProperty({ example: 0.98 })
-  @IsNumber()
-  stabilityFactor!: number;
+  @Type(() => KdiType)
+  breakdown!: KdiType[];
 }
 
 // ---------------- Response Data ----------------
-class ResponseDataDto {
-  @ApiProperty({ type: KeyMetricsDto })
+class MandyType {
+  @ApiProperty({ type: CbdType })
   @ValidateNested()
-  @Type(() => KeyMetricsDto)
-  KeyMetrics!: KeyMetricsDto;
+  @Type(() => CbdType)
+  KeyMetrics!: CbdType;
 
   @ApiProperty({ type: DealScoreboardDto })
   @ValidateNested()
@@ -79,13 +79,13 @@ class ResponseDataDto {
 }
 
 // ---------------- MAIN DTO ----------------
-export class faltuDto {
+export class Section8RequestDto {
   @ApiProperty({ example: 'SECTION_8' })
   @IsString()
   strategy!: string;
 
-  @ApiProperty({ type: ResponseDataDto })
+  @ApiProperty({ type: MandyType })
   @ValidateNested()
-  @Type(() => ResponseDataDto)
-  responseData!: ResponseDataDto;
+  @Type(() => MandyType)
+  responseData!: MandyType;
 }
