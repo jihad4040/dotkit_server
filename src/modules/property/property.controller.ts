@@ -18,6 +18,10 @@ import { SaveBrrrPropertyDataDto } from './dto/save.brrrr.property.data.dto';
 import { SaveSection8PropertyDataDto } from './dto/save.section8.property.dto';
 import { CalculateBrrrPropertyDto } from './dto/calculate.brrrr.property.dto';
 import { CalculateTurnkeyPropertyDto } from './dto/calculate.turnkey.property.dto';
+import { CreateBrrrrDto } from './dto/create.save.brrr.property.dto';
+import { CreateTurnkeyDto } from './dto/create.save.turnkey.dto';
+import { CreateSaveSection8Dto } from './dto/create.save.section.8.dto';
+import { faltuDto } from './dto/faltu.dto';
 
 @Controller('property')
 export class PropertyController {
@@ -88,9 +92,10 @@ export class PropertyController {
   @UseGuards(JwtAuthGuard)
   async saveBrrrProperty(
     @GetCurrentUser('userId') userId: string,
-    @Body() dto: SaveBrrrPropertyDataDto,
+    @Body() dto: CreateBrrrrDto,
   ) {
-    return this.propertyService.saveBrrrProperty(userId, dto);
+    // return this.propertyService.saveBrrrProperty(userId, dto);
+    return dto;
   }
 
   @Post(`save-turnkey-property`)
@@ -98,18 +103,25 @@ export class PropertyController {
   @UseGuards(JwtAuthGuard)
   async saveTurnkeyProperty(
     @GetCurrentUser('userId') userId: string,
-    @Body() dto: SaveBrrrPropertyDataDto,
+    @Body() dto: CreateTurnkeyDto,
   ) {
-    return this.propertyService.saveTurnkeyProperty(userId, dto);
+    // return this.propertyService.saveTurnkeyProperty(userId, dto);
+    return dto;
   }
 
   @Post(`save-section8-property`)
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  async saveSection8Property(
-    @GetCurrentUser('userId') userId: string,
-    @Body() dto: SaveSection8PropertyDataDto,
-  ) {
-    return this.propertyService.saveSection8Property(userId, dto);
+  async saveSection8Property(@Body() dto: faltuDto) {
+    // return this.propertyService.saveSection8Property(userId, dto);
+    return dto;
   }
+  // @Post(`save-section8-property`)
+  // @ApiBearerAuth()
+  // @UseGuards(JwtAuthGuard)
+  // async saveSection8Property(
+  //   @GetCurrentUser('userId') userId: string,
+  //   @Body() dto: CreateSection8Dto,
+  // ) {
+  //   // return this.propertyService.saveSection8Property(userId, dto);
+  //   return dto;
+  // }
 }

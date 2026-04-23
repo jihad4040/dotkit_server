@@ -266,6 +266,52 @@ export class PropertyService {
 
     const capRate = (noi / dto.arvAfterRepairValue) * 100;
 
+    const scoreLookup = (val: number, good: number, avg: number) => {
+      if (val >= good) return { score: 10, status: 'GOOD' };
+      if (val >= avg) return { score: 5, status: 'AVERAGE' };
+      return { score: 0, status: 'BAD' };
+    };
+
+    const onePercentRule = dto.monthlyRent >= allInCost * 0.01;
+
+    const breakdown = [
+      {
+        name: 'Cash Flow',
+        value: annualCashFlow,
+        ...scoreLookup(annualCashFlow, 3000, 1200),
+      },
+      {
+        name: 'Post-Refi CoC',
+        value: postRefiCoC,
+        ...scoreLookup(postRefiCoC, 12, 6),
+      },
+      {
+        name: 'Cap Rate',
+        value: capRate,
+        ...scoreLookup(capRate, 8, 5),
+      },
+      {
+        name: 'DSCR',
+        value: dscr,
+        ...scoreLookup(dscr, 1.25, 1.0),
+      },
+      {
+        name: '1% Rule (All-In)',
+        value: onePercentRule,
+        score: onePercentRule ? 10 : 0,
+        status: onePercentRule ? 'GOOD' : 'BAD',
+      },
+    ];
+
+    const totalScore = breakdown.reduce((sum, i) => sum + i.score, 0);
+
+    const rating =
+      totalScore >= 40
+        ? 'GOOD DEAL'
+        : totalScore >= 25
+          ? 'AVERAGE DEAL'
+          : 'BAD DEAL';
+
     // ---------------- FINAL ----------------
     return {
       strategy: 'BRRRR',
@@ -279,44 +325,46 @@ export class PropertyService {
       managementRate: dto.managementRate,
       capexRate: dto.capexRate,
 
-      responseData: {
-        KeyMetrics: {
-          allInCost,
-          initialCashInvested,
-          monthlyCashFlow,
-          postRefiCoC,
-          cashOutAmount: cashOut,
-          cashLeftInDeal,
-          equityCaptured,
+      // KeyMetrics
+      allInCost_m: allInCost,
+      initialCashInvested_m: initialCashInvested,
+      monthlyCashFlow_m: monthlyCashFlow,
+      postRefiCoC_m: postRefiCoC,
+      cashOutAmount_m: cashOut,
+      cashLeftInDeal_m: cashLeftInDeal,
+      equityCaptured_m: equityCaptured,
+      refinanceLoanAmount_m: refinanceLoanAmount,
+      capRate_m: capRate,
+      DSCR_m: dscr,
+      netOperatingIncome_m: noi,
+      incomeExpance: {
+        income: {
+          monthlyRent: dto.monthlyRent,
+          annualRent,
+          effectiveIncome,
+        },
+        expenses: {
+          totalExpenses,
+        },
+        noi,
+        mortgage: {
+          monthlyMortgage: refiMortgage,
+          annualMortgage: refiMortgage * 12,
+        },
+        netCashFlow: {
+          monthly: monthlyCashFlow,
+          annual: annualCashFlow,
+        },
+        financing: {
+          purchaseLoanAmount: loanAmount,
           refinanceLoanAmount,
-          capRate,
-          DSCR: dscr,
-          netOperatingIncome: noi,
+          loanPointsCost,
         },
-        incomeExpance: {
-          income: {
-            monthlyRent: dto.monthlyRent,
-            annualRent,
-            effectiveIncome,
-          },
-          expenses: {
-            totalExpenses,
-          },
-          noi,
-          mortgage: {
-            monthlyMortgage: refiMortgage,
-            annualMortgage: refiMortgage * 12,
-          },
-          netCashFlow: {
-            monthly: monthlyCashFlow,
-            annual: annualCashFlow,
-          },
-          financing: {
-            purchaseLoanAmount: loanAmount,
-            refinanceLoanAmount,
-            loanPointsCost,
-          },
-        },
+      },
+      dealScoreboard: {
+        totalScore,
+        rating,
+        breakdown,
       },
     };
   }
