@@ -9,7 +9,7 @@ import {
   IsString,
 } from 'class-validator';
 
-export class SaveTurkenyPropertyDataDto {
+export class CreateTurkenyDTO_Mod {
   @ApiProperty({ enum: StrategyType, example: `TURNKEY` })
   @IsEnum(StrategyType)
   strategy!: StrategyType;

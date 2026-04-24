@@ -5,6 +5,7 @@ import {
   IsBoolean,
   IsArray,
   ValidateNested,
+  IsNotEmpty,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -140,6 +141,11 @@ export class CreateBrrrrDto {
   @ApiProperty({ example: 'BRRRR' })
   @IsString()
   strategy!: string;
+
+  @ApiProperty({ example: 'Property Name' })
+  @IsNotEmpty()
+  @IsString()
+  name!: string;
 
   @ApiProperty({ example: '123 Main St' })
   @IsString()

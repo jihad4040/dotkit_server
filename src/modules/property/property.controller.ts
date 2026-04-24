@@ -22,6 +22,7 @@ import { CreateBrrrrDto } from './dto/create.save.brrr.property.dto';
 import { CreateTurnkeyDto } from './dto/create.save.turnkey.dto';
 import { CreateSaveSection8Dto } from './dto/create.save.section.8.dto';
 import { Section8RequestDto } from './dto/section.e.request.dto';
+import { CreateTurkenyDTO_Mod } from './dto/save .turkeny.property.dto';
 
 @Controller('property')
 export class PropertyController {
@@ -95,7 +96,6 @@ export class PropertyController {
     @Body() dto: CreateBrrrrDto,
   ) {
     return this.propertyService.saveBrrrProperty(userId, dto);
-    return dto;
   }
 
   @Post(`save-turnkey-property`)
@@ -103,10 +103,9 @@ export class PropertyController {
   @UseGuards(JwtAuthGuard)
   async saveTurnkeyProperty(
     @GetCurrentUser('userId') userId: string,
-    @Body() dto: CreateTurnkeyDto,
+    @Body() dto: CreateTurkenyDTO_Mod,
   ) {
-    // return this.propertyService.saveTurnkeyProperty(userId, dto);
-    return dto;
+    return this.propertyService.saveTurnkeyProperty(userId, dto);
   }
 
   @Post(`save-section8-property`)
@@ -116,8 +115,7 @@ export class PropertyController {
     @Body() dto: Section8RequestDto,
     @GetCurrentUser('userId') userId: string,
   ) {
-    // return this.propertyService.saveSection8Property(userId, dto);
-    return dto;
+    return this.propertyService.saveSection8Property(userId, dto);
   }
   // @Post(`save-section8-property`)
   // @ApiBearerAuth()

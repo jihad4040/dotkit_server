@@ -7,6 +7,8 @@ import { CalculateBrrrPropertyDto } from './dto/calculate.brrrr.property.dto';
 import { CalculateTurnkeyPropertyDto } from './dto/calculate.turnkey.property.dto';
 import { CreateBrrrrDto } from './dto/create.save.brrr.property.dto';
 import { CreateTurnkeyDto } from './dto/create.save.turnkey.dto';
+import { CreateTurkenyDTO_Mod } from './dto/save .turkeny.property.dto';
+import { Section8RequestDto } from './dto/section.e.request.dto';
 
 @Injectable()
 export class PropertyService {
@@ -786,7 +788,14 @@ export class PropertyService {
     // ---------------- FINAL RESPONSE ----------------
     return {
       strategy: 'SECTION_8',
-
+      stateAddress: dto.stateAddress,
+      purchasePrice: dto.purchasePrice,
+      downPayment: dto.downPayment,
+      annualInsurance: dto.annualInsurance,
+      annualPropertyTax: dto.annualPropertyTax,
+      vacancyRate: dto.vacancyRate,
+      maintenanceRate: dto.maintenanceRate,
+      managementRate: dto.managementRate,
       responseData: {
         KeyMetrics: {
           DSCR: Number(dscr.toFixed(2)),
@@ -877,9 +886,10 @@ export class PropertyService {
   }
 
   async saveBrrrProperty(userId: string, dto: CreateBrrrrDto) {
-   const property = await this.prisma.propertyCalculation.create({
+    const property = await this.prisma.propertyCalculation.create({
       data: {
         strategy: 'BRRRR',
+        name: dto.name,
         stateAddress: dto.stateAddress,
         purchasePrice: dto.purchasePrice,
         downPayment: dto.downPayment,
@@ -931,89 +941,86 @@ export class PropertyService {
 
     return {
       message: 'Property saved successfully',
-      data : property
+      data: property,
     };
   }
 
-  async saveTurnkeyProperty(userId: string, dto: CreateTurnkeyDto) {
-    
-   
- 
-
-    // if (breakdown.length > 0) {
-    //   await this.prisma.scoreBreakdown.createMany({
-    //     data: breakdown.map((item: any) => ({
-    //       propertyId: property.propertyId,
-    //       name: item.name,
-    //       value:
-    //         typeof item.value === 'boolean' ? (item.value ? 1 : 0) : item.value,
-    //       score: item.score,
-    //       status: item.status,
-    //     })),
-    //   });
-    // }
-
-    // ✅ 4. Return
-    return {
-      message: 'Turnkey Property saved successfully',
-    };
-  }
-
-  async saveSection8Property(userId: string, dto: SaveSection8PropertyDataDto) {
-    const {
-      strategy,
-      stateAddress,
-      purchasePrice,
-      downPayment,
-      annualInsurance,
-      annualPropertyTax,
-      vacancyRate,
-      maintenanceRate,
-      managementRate,
-      capexRate,
-      responseData,
-    } = dto;
-
-    const KeyMetrics = responseData?.KeyMetrics;
-    const dealScoreboard = responseData?.dealScoreboard;
-
-    // ✅ 1. Prepare flat data
-    const data: any = {
-      name: dto.name,
-      userId,
-      strategy,
-      stateAddress,
-
-      purchasePrice,
-      downPayment,
-      annualInsurance,
-      annualPropertyTax,
-      vacancyRate,
-      maintenanceRate,
-      managementRate,
-      capexRate,
-
-      // --- KEY METRICS ---
-      monthlyCashFlow: KeyMetrics?.monthlyCashFlow,
-      netOperatingIncome: KeyMetrics?.netOperatingIncome,
-      dscr: KeyMetrics?.DSCR,
-
-      // --- SCOREBOARD MAIN ---
-      totalScore: dealScoreboard?.totalScore,
-      scoreBoardStatus: dealScoreboard?.rating,
-    };
-
-    // ✅ 2. Save Property
+  async saveTurnkeyProperty(userId: string, dto: CreateTurkenyDTO_Mod) {
     const property = await this.prisma.propertyCalculation.create({
-      data,
+      data: {
+        strategy: 'TURNKEY',
+        name: dto.name,
+        stateAddress: dto.stateAddress,
+        purchasePrice: dto.purchasePrice,
+        downPayment: dto.downPayment,
+        annualInsurance: dto.annualInsurance,
+        annualPropertyTax: dto.annualPropertyTax,
+        vacancyRate: dto.vacancyRate,
+        maintenanceRate: dto.maintenanceRate,
+        managementRate: dto.managementRate,
+        capexRate: dto.capexRate,
+        userId: userId,
+        allInCost: dto.responseData.KeyMetrics.allInCost,
+        initialCashInvested: dto.responseData.KeyMetrics.initialCashInvested,
+        monthlyNetCashFlow: dto.responseData.KeyMetrics.monthlyCashFlow,
+        cashOnCashReturn: dto.responseData.KeyMetrics.CashOnCashReturn,
+        capRate: dto.responseData.KeyMetrics.capRate,
+        dscr: dto.responseData.KeyMetrics.DSCR,
+        onePercentRule: dto.responseData.KeyMetrics.OnePercentRule,
+        netOperatingIncome: dto.responseData.KeyMetrics.netOperatingIncome,
+        noi: dto.responseData.incomeExpance.noi,
+        monthlyMortgage:
+          dto.responseData.incomeExpance.mortgage.monthlyMortgage,
+        annualNetCashFlow: dto.responseData.incomeExpance.netCashFlow.annual,
+        scoreBoardStatus: dto.responseData.dealScoreboard.rating,
+        totalScore: dto.responseData.dealScoreboard.totalScore,
+      },
     });
 
-    // ✅ 3. Save Breakdown
-    const breakdown = dealScoreboard?.breakdown || [];
-
-    if (breakdown.length > 0) {
+    if (dto.responseData.dealScoreboard.breakdown.length > 0) {
       await this.prisma.scoreBreakdown.createMany({
-        data: breakdown.map((item: any) => ({
+        data: dto.responseData.dealScoreboard.breakdown.map((item: any) => ({
+          propertyId: property.propertyId,
+          name: item.name,
+          value:
+            typeof item.value === 'boolean' ? (item.value ? 1 : 0) : item.value,
+          score: item.score,
+          status: item.status,
+        })),
+      });
+    }
+    return {
+      message: 'Turnkey Property saved successfully',
+      data: property,
+    };
+  }
+
+  async saveSection8Property(userId: string, dto: Section8RequestDto) {
+    const property = await this.prisma.propertyCalculation.create({
+      data: {
+        strategy: 'SECTION_8',
+        name: dto.name,
+        stateAddress: dto.stateAddress,
+        purchasePrice: dto.purchasePrice,
+        downPayment: dto.downPayment,
+        annualInsurance: dto.annualInsurance,
+        annualPropertyTax: dto.annualPropertyTax,
+        vacancyRate: dto.vacancyRate,
+        maintenanceRate: dto.maintenanceRate,
+        managementRate: dto.managementRate,
+        capexRate: dto.capexRate,
+        userId: userId,
+        dscr: dto.responseData.KeyMetrics.DSCR,
+        netOperatingIncome: dto.responseData.KeyMetrics.netOperatingIncome,
+        monthlyNetCashFlow: dto.responseData.KeyMetrics.monthlyCashFlow,
+        scoreBoardStatus: dto.responseData.dealScoreboard.rating,
+        totalScore: dto.responseData.dealScoreboard.totalScore,
+      },
+    });
+
+    if (dto.responseData.dealScoreboard.breakdown.length > 0) {
+      await this.prisma.scoreBreakdown.createMany({
+        data: dto.responseData.dealScoreboard.breakdown.map((item: any) => ({
           propertyId: property.propertyId,
           name: item.name,
           value:
@@ -1027,6 +1034,7 @@ export class PropertyService {
     // ✅ 4. Return response
     return {
       message: 'Section 8 Property saved successfully',
+      data: property
     };
   }
 }
