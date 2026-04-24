@@ -5,6 +5,8 @@ import { SaveBrrrPropertyDataDto } from './dto/save.brrrr.property.data.dto';
 import { SaveSection8PropertyDataDto } from './dto/save.section8.property.dto';
 import { CalculateBrrrPropertyDto } from './dto/calculate.brrrr.property.dto';
 import { CalculateTurnkeyPropertyDto } from './dto/calculate.turnkey.property.dto';
+import { CreateBrrrrDto } from './dto/create.save.brrr.property.dto';
+import { CreateTurnkeyDto } from './dto/create.save.turnkey.dto';
 
 @Injectable()
 export class PropertyService {
@@ -874,84 +876,49 @@ export class PropertyService {
     });
   }
 
-  async saveBrrrProperty(userId: string, dto: SaveBrrrPropertyDataDto) {
-    const {
-      strategy,
-      stateAddress,
-      purchasePrice,
-      downPayment,
-      annualInsurance,
-      annualPropertyTax,
-      vacancyRate,
-      maintenanceRate,
-      managementRate,
-      capexRate,
-      responseData,
-    } = dto;
-
-    // ✅ FIXED
-    const KeyMetrics = responseData?.KeyMetrics;
-    const incomeExpance = responseData?.incomeExpance;
-    const dealScoreboard = responseData?.dealScoreboard;
-    const totalScore = dealScoreboard?.totalScore || 0;
-    const scoreBoardStatus = dealScoreboard?.rating;
-
-    const data: any = {
-      name: dto.name,
-      userId,
-      strategy,
-      stateAddress,
-
-      totalScore: totalScore,
-      scoreBoardStatus: scoreBoardStatus,
-
-      //   Static Data
-      purchasePrice: purchasePrice,
-      downPayment: downPayment,
-      annualInsurance: annualInsurance,
-      annualPropertyTax: annualPropertyTax,
-      vacancyRate: vacancyRate,
-      maintenanceRate: maintenanceRate,
-      managementRate: managementRate,
-      capexRate: capexRate,
-
-      // --- KEY METRICS ---
-      allInCost: KeyMetrics?.allInCost,
-      initialCashInvested: KeyMetrics?.initialCashInvested,
-      monthlyCashFlow: KeyMetrics?.monthlyCashFlow,
-      cashOnCashReturn: KeyMetrics?.postRefiCoC,
-      capRate: KeyMetrics?.capRate,
-      dscr: KeyMetrics?.DSCR,
-      onePercentRule: KeyMetrics?.OnePercentRuleAllIn,
-      netOperatingIncome: KeyMetrics?.netOperatingIncome,
-
-      // --- INCOME ---
-      monthlyRent: incomeExpance?.income?.monthlyRent,
-      annualRent: incomeExpance?.income?.annualRent,
-      effectiveIncome: incomeExpance?.income?.effectiveIncome,
-
-      // --- EXPENSE ---
-      totalExpenses: incomeExpance?.expenses?.totalExpenses,
-      noi: incomeExpance?.noi,
-
-      // --- MORTGAGE ---
-      monthlyMortgage: incomeExpance?.mortgage?.monthlyMortgage,
-      mortgage: incomeExpance?.mortgage?.annualMortgage,
-
-      // --- ANNUAL ---
-      annualNoi: incomeExpance?.noi,
-      annualNetCashFlow: incomeExpance?.netCashFlow?.annual,
-    };
-
-    const property = await this.prisma.propertyCalculation.create({
-      data,
+  async saveBrrrProperty(userId: string, dto: CreateBrrrrDto) {
+   const property = await this.prisma.propertyCalculation.create({
+      data: {
+        strategy: 'BRRRR',
+        stateAddress: dto.stateAddress,
+        purchasePrice: dto.purchasePrice,
+        downPayment: dto.downPayment,
+        annualInsurance: dto.annualInsurance,
+        annualPropertyTax: dto.annualPropertyTax,
+        vacancyRate: dto.vacancyRate,
+        maintenanceRate: dto.maintenanceRate,
+        managementRate: dto.managementRate,
+        capexRate: dto.capRate_m,
+        allInCost: dto.allInCost_m,
+        initialCashInvested: dto.initialCashInvested_m,
+        monthlyNetCashFlow: dto.monthlyCashFlow_m,
+        postRefiCoC: dto.postRefiCoC_m,
+        cashOutAmount: dto.cashOutAmount_m,
+        cashLeftInDeal: dto.cashLeftInDeal_m,
+        equityCaptured: dto.equityCaptured_m,
+        refinanceLoanAmount: dto.refinanceLoanAmount_m,
+        capRate: dto.capRate_m,
+        netOperatingIncome: dto.netOperatingIncome_m,
+        dscr: dto.DSCR_m,
+        userId: userId,
+        monthlyRent: dto.incomeExpance.income.monthlyRent,
+        annualRent: dto.incomeExpance.income.annualRent,
+        effectiveIncome: dto.incomeExpance.income.effectiveIncome,
+        totalExpenses: dto.incomeExpance.expenses.totalExpenses,
+        noi: dto.incomeExpance.noi,
+        monthlyMortgage: dto.incomeExpance.mortgage.monthlyMortgage,
+        annualMortgage: dto.incomeExpance.mortgage.annualMortgage,
+        annualNetCashFlow: dto.incomeExpance.netCashFlow.annual,
+        purchaseLoanAmount: dto.incomeExpance.financing.purchaseLoanAmount,
+        loanPointsCost: dto.incomeExpance.financing.loanPointsCost,
+        totalScore: dto.dealScoreboard.totalScore,
+        scoreBoardStatus: dto.dealScoreboard.rating,
+      },
     });
 
-    const breakdown = dealScoreboard?.breakdown || [];
-
-    if (breakdown.length > 0) {
+    if (dto.dealScoreboard.breakdown.length > 0) {
       await this.prisma.scoreBreakdown.createMany({
-        data: breakdown.map((item: any) => ({
+        data: dto.dealScoreboard.breakdown.map((item: any) => ({
           propertyId: property.propertyId,
           name: item.name,
           value:
@@ -964,97 +931,27 @@ export class PropertyService {
 
     return {
       message: 'Property saved successfully',
+      data : property
     };
   }
 
-  async saveTurnkeyProperty(userId: string, dto: SaveBrrrPropertyDataDto) {
-    const {
-      strategy,
-      stateAddress,
-      purchasePrice,
-      downPayment,
-      annualInsurance,
-      annualPropertyTax,
-      vacancyRate,
-      maintenanceRate,
-      managementRate,
-      capexRate,
-      responseData,
-    } = dto;
+  async saveTurnkeyProperty(userId: string, dto: CreateTurnkeyDto) {
+    
+   
+ 
 
-    // ✅ Correct extraction
-    const KeyMetrics = responseData?.KeyMetrics;
-    const incomeExpance = responseData?.incomeExpance;
-    const dealScoreboard = responseData?.dealScoreboard;
-
-    // ✅ 1. Prepare flat data
-    const data: any = {
-      name: dto.name,
-      userId,
-      strategy,
-      stateAddress,
-
-      purchasePrice,
-      downPayment,
-      annualInsurance,
-      annualPropertyTax,
-      vacancyRate,
-      maintenanceRate,
-      managementRate,
-      capexRate,
-
-      // --- KEY METRICS ---
-      allInCost: KeyMetrics?.allInCost,
-      initialCashInvested: KeyMetrics?.initialCashInvested,
-      monthlyCashFlow: KeyMetrics?.monthlyCashFlow,
-      cashOnCashReturn: KeyMetrics?.postRefiCoC,
-      capRate: KeyMetrics?.capRate,
-      dscr: KeyMetrics?.DSCR,
-      onePercentRule: KeyMetrics?.OnePercentRuleAllIn,
-      netOperatingIncome: KeyMetrics?.netOperatingIncome,
-
-      // --- INCOME ---
-      monthlyRent: incomeExpance?.income?.monthlyRent,
-      annualRent: incomeExpance?.income?.annualRent,
-      effectiveIncome: incomeExpance?.income?.effectiveIncome,
-
-      // --- EXPENSE ---
-      totalExpenses: incomeExpance?.expenses?.totalExpenses,
-      noi: incomeExpance?.noi,
-
-      // --- MORTGAGE ---
-      monthlyMortgage: incomeExpance?.mortgage?.monthlyMortgage,
-      mortgage: incomeExpance?.mortgage?.annualMortgage,
-
-      // --- ANNUAL ---
-      annualNoi: incomeExpance?.noi,
-      annualNetCashFlow: incomeExpance?.netCashFlow?.annual,
-
-      // --- SCOREBOARD (optional main table fields) ---
-      totalScore: dealScoreboard?.totalScore,
-      scoreBoardStatus: dealScoreboard?.rating,
-    };
-
-    // ✅ 2. Save Property
-    const property = await this.prisma.propertyCalculation.create({
-      data,
-    });
-
-    // ✅ 3. Save Breakdown
-    const breakdown = dealScoreboard?.breakdown || [];
-
-    if (breakdown.length > 0) {
-      await this.prisma.scoreBreakdown.createMany({
-        data: breakdown.map((item: any) => ({
-          propertyId: property.propertyId,
-          name: item.name,
-          value:
-            typeof item.value === 'boolean' ? (item.value ? 1 : 0) : item.value,
-          score: item.score,
-          status: item.status,
-        })),
-      });
-    }
+    // if (breakdown.length > 0) {
+    //   await this.prisma.scoreBreakdown.createMany({
+    //     data: breakdown.map((item: any) => ({
+    //       propertyId: property.propertyId,
+    //       name: item.name,
+    //       value:
+    //         typeof item.value === 'boolean' ? (item.value ? 1 : 0) : item.value,
+    //       score: item.score,
+    //       status: item.status,
+    //     })),
+    //   });
+    // }
 
     // ✅ 4. Return
     return {

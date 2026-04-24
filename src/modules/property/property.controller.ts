@@ -94,7 +94,7 @@ export class PropertyController {
     @GetCurrentUser('userId') userId: string,
     @Body() dto: CreateBrrrrDto,
   ) {
-    // return this.propertyService.saveBrrrProperty(userId, dto);
+    return this.propertyService.saveBrrrProperty(userId, dto);
     return dto;
   }
 
@@ -110,7 +110,12 @@ export class PropertyController {
   }
 
   @Post(`save-section8-property`)
-  async saveSection8Property(@Body() dto: Section8RequestDto) {
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  async saveSection8Property(
+    @Body() dto: Section8RequestDto,
+    @GetCurrentUser('userId') userId: string,
+  ) {
     // return this.propertyService.saveSection8Property(userId, dto);
     return dto;
   }
