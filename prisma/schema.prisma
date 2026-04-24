@@ -104,7 +104,7 @@ model PropertyCalculation {
   lenderFees          Decimal? @db.Decimal(12, 2)
 
   // --- RELATIONS ---
-  user      User             @relation(fields: [userId], references: [userId])
+  user      User             @relation(fields: [userId], references: [userId], onDelete: Cascade)
   breakdown ScoreBreakdown[]
 
   createdAt DateTime @default(now())
